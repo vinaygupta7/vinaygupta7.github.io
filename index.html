@@ -6,89 +6,144 @@
     <title>Vinay Gupta - Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
-    <!-- Chosen Palette: Slate Gray and Amber -->
-    <!-- Application Structure Plan: The page is designed as a dynamic, single-page portfolio. It starts with a personal introduction and contact information. The core of the page is an interactive resume, featuring a skills explorer, a career timeline, a career focus chart, and a certifications section. This new version replaces the static blog iframe with a dynamic "Project Showcase" gallery, featuring images and interactive hovers. This structure prioritizes visual engagement and a comprehensive, unified digital identity. -->
-    <!-- Visualization & Content Choices: 
-        - All Information: Goal: Consolidate & Present -> Viz: Single HTML page -> Interaction: Navigable via scrolling and interactive filters -> Justification: Creates a single, unified digital identity. -> Library: Vanilla JS + Tailwind CSS.
-        - Core Skills: Goal: Organize & Relate -> Viz: Interactive buttons/tags -> Interaction: Click to filter timeline and certifications -> Justification: Enables recruiters to instantly validate skills against experience. -> Library: Vanilla JS.
-        - Work Experience: Goal: Show Change & Detail -> Viz: Vertical Timeline Cards -> Interaction: Highlights based on skill filter -> Justification: A timeline is the most logical way to visualize career progression. Highlighting provides immediate visual feedback. -> Library: Vanilla JS + Tailwind CSS.
-        - Career Duration: Goal: Summarize -> Viz: Donut Chart -> Interaction: Hover tooltips -> Justification: Provides a high-level visual summary of professional focus (SRE vs. Dev vs. Admin). -> Library: Chart.js (Canvas).
-        - Project Showcase: Goal: Present visual work -> Viz: Grid of Images with hover effects -> Interaction: Hover to see details -> Justification: Replaces the blog iframe with a more visually appealing and direct way to show personal projects or work samples. -> Library: Vanilla JS + Tailwind CSS.
-    -->
+    
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            opacity: 0;
-            animation: fadeIn 1s ease-in-out forwards;
+        :root {
+            --background: #0d1117; /* GitHub Dark Background */
+            --foreground: #c9d1d9; /* GitHub Dark Text */
+            --green: #39ff14;
+            --green-dim: rgba(57, 255, 20, 0.7);
+            --border: #30363d;
         }
 
-        /* Keyframes for the main page fade-in */
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--background);
+            color: var(--foreground);
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
+            overflow-y: scroll;
+        }
+
+        /* Scanline effect for CRT monitor feel */
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            z-index: -1;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        
+        @keyframes flicker {
+          0% { opacity: 0.8; }
+          50% { opacity: 1; }
+          100% { opacity: 0.8; }
+        }
 
-        /* Animations for timeline items */
-        @keyframes slideInUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+        .hacker-container {
+            background-color: rgba(13, 17, 23, 0.8);
+            border: 1px solid var(--border);
+            box-shadow: 0 0 15px var(--green-dim);
+            backdrop-filter: blur(4px);
+        }
+
+        .hacker-card {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease-in-out;
+        }
+        .hacker-card:hover {
+            box-shadow: 0 0 10px var(--green-dim);
+            border-color: var(--green-dim);
+        }
+
+        .text-glow {
+            color: var(--green);
+            text-shadow: 0 0 5px var(--green);
+        }
+        
+        .typewriter-text {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .cursor {
+            display: inline-block;
+            background-color: var(--green);
+            width: 10px;
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { background-color: transparent }
+            50% { background-color: var(--green); }
         }
 
         .skill-tag {
+            background-color: var(--border);
+            color: var(--foreground);
+            border: 1px solid var(--border);
             transition: all 0.2s ease-in-out;
         }
         .skill-tag:hover {
             transform: scale(1.05);
+            background-color: var(--green-dim);
+            color: var(--background);
+            box-shadow: 0 0 8px var(--green-dim);
         }
+        .active-skill {
+            background-color: var(--green) !important;
+            color: var(--background) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px var(--green);
+        }
+
         .timeline-item, .cert-item {
             transition: all 0.3s ease-in-out;
             border-left-width: 4px;
+            border-left-color: var(--border);
         }
-        .timeline-item {
-            /* Initial state for the animation */
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        .timeline-item.in-view {
-            animation: slideInUp 0.6s ease-out forwards;
-        }
+
         .dimmed {
             opacity: 0.3;
             transform: scale(0.98);
         }
         .highlight {
-            border-left-color: #f59e0b !important;
+            border-left-color: var(--green) !important;
             transform: scale(1.02);
-            box-shadow: 0 4px 14px 0 rgba(0,0,0,0.05);
+            box-shadow: 0 4px 14px 0 rgba(57, 255, 20, 0.1);
         }
-        .active-skill {
-            background-color: #f59e0b !important;
-            color: #ffffff !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
-        }
+        
         .chart-container {
             position: relative;
             width: 100%;
             max-width: 400px;
             margin-left: auto;
             margin-right: auto;
-            height: auto;
-            max-height: 400px;
         }
+        
         .project-card {
             position: relative;
             overflow: hidden;
+            border: 1px solid var(--border);
         }
         .project-card img {
             transition: transform 0.3s ease-in-out;
@@ -98,12 +153,10 @@
         }
         .project-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(13, 17, 23, 0.9);
+            color: var(--foreground);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -119,17 +172,17 @@
 </head>
 <body class="p-4 sm:p-8">
 
-    <div class="container mx-auto max-w-7xl bg-white p-6 md:p-10 rounded-xl shadow-lg border border-slate-200">
+    <div class="hacker-container container mx-auto max-w-7xl p-6 md:p-10 rounded-xl">
 
         <!-- Header Section -->
         <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-2">Vinay Gupta</h1>
-            <p class="text-lg text-slate-500 mb-4">Site Reliability Engineer</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-glow mb-2" id="header-name"></h1>
+            <p class="text-lg text-slate-400 mb-4" id="header-title"></p>
             <div class="flex flex-col sm:flex-row justify-center items-center gap-x-6 gap-y-4 mb-6">
-                <div class="LI-profile-badge" data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="vinaygupta-cse"><a class="LI-simple-link" href='https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge'></a></div>
-                <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm text-slate-600">
-                    <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-amber-600">✉️ vinaygupta.cse@gmail.com</a>
-                    <span class="text-slate-600">📍 Bengaluru, IN</span>
+                <div class="LI-profile-badge" data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="dark" data-vanity="vinaygupta-cse"><a class="LI-simple-link" href='https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge'></a></div>
+                <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm text-slate-400">
+                    <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-green-400">> vinaygupta.cse@gmail.com</a>
+                    <span class="text-slate-400">> Bengaluru, IN</span>
                 </div>
             </div>
         </header>
@@ -137,46 +190,45 @@
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             <aside class="lg:col-span-1 space-y-8">
-                <section id="skills-section" class="bg-white p-6 rounded-xl shadow-sm">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Core Skills Explorer</h2>
-                    <p class="text-sm text-slate-500 mb-4">Click on a skill to highlight relevant experience and certifications.</p>
+                <section id="skills-section" class="hacker-card p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold text-glow mb-4 border-b border-b-[var(--border)] pb-2">> Core Skills</h2>
+                    <p class="text-sm text-slate-400 mb-4">// Click a skill to filter timeline</p>
                     <div id="skills-container" class="flex flex-wrap gap-2"></div>
-                     <button id="reset-filter" class="mt-4 w-full bg-slate-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-slate-700 transition-colors duration-200">Reset Filter</button>
+                    <button id="reset-filter" class="mt-4 w-full bg-slate-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-slate-700 transition-colors duration-200">reset_filter()</button>
                 </section>
                 
-                 <section class="bg-white p-6 rounded-xl shadow-sm">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Career Focus</h2>
-                     <p class="text-sm text-slate-500 mb-4">A visual breakdown of time spent across primary role functions, illustrating the evolution towards Site Reliability Engineering.</p>
+                <section class="hacker-card p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold text-glow mb-4 border-b border-b-[var(--border)] pb-2">> Career Focus</h2>
+                    <p class="text-sm text-slate-400 mb-4">// Breakdown of role functions</p>
                     <div class="chart-container">
                         <canvas id="careerChart"></canvas>
                     </div>
                 </section>
 
-                <section id="certs-section" class="bg-white p-6 rounded-xl shadow-sm">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Certifications</h2>
+                <section id="certs-section" class="hacker-card p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold text-glow mb-4 border-b border-b-[var(--border)] pb-2">> Certifications</h2>
                     <div id="certs-container" class="space-y-4"></div>
                 </section>
             </aside>
 
-            <div class="lg:col-span-2">
-                <section id="summary-section" class="bg-white p-6 rounded-xl shadow-sm mb-8">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Professional Summary</h2>
-                    <p class="text-slate-600 leading-relaxed">Site Reliability Engineer with over 13 years of experience in designing, implementing, and managing scalable infrastructure. Proven expertise in Kubernetes, Google Cloud Platform (GCP), DevOps methodologies, and Observability. Skilled in ensuring service reliability, driving cost optimization, maintaining security compliance, and operating high-performance distributed systems.</p>
+            <div class="lg:col-span-2 space-y-8">
+                <section id="summary-section" class="hacker-card p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold text-glow mb-4">> Professional Summary</h2>
+                    <p class="text-slate-300 leading-relaxed">// Site Reliability Engineer with over 13 years of experience in designing, implementing, and managing scalable infrastructure. Proven expertise in Kubernetes, Google Cloud Platform (GCP), DevOps methodologies, and Observability. Skilled in ensuring service reliability, driving cost optimization, maintaining security compliance, and operating high-performance distributed systems.</p>
                 </section>
 
-                <section id="experience-section" class="bg-white p-6 rounded-xl shadow-sm">
-                    <h2 class="text-2xl font-bold text-slate-800 mb-6">Career Timeline</h2>
+                <section id="experience-section" class="hacker-card p-6 rounded-xl">
+                    <h2 class="text-2xl font-bold text-glow mb-6">> Career Timeline</h2>
                     <div id="experience-container" class="relative space-y-8">
-                         <!-- Vertical line for the timeline -->
-                         <div class="absolute left-4 top-4 bottom-4 w-0.5 bg-slate-200"></div>
+                        <div class="absolute left-4 top-4 bottom-4 w-0.5 bg-slate-700"></div>
                     </div>
                 </section>
             </div>
         </main>
         
         <!-- Footer Section -->
-        <footer class="text-center text-slate-500 pt-8 mt-8 border-t border-slate-200">
-            <p>&copy; 2025 Vinay Gupta. All rights reserved.</p>
+        <footer class="text-center text-slate-500 pt-8 mt-8 border-t border-slate-700">
+            <p>&copy; 2025 Vinay Gupta. init_complete()</p>
         </footer>
     </div>
 
@@ -262,44 +314,14 @@
                 data: [7, 4.5, 2]
             },
             certifications: [
-                {
-                    name: "GCP Associate Cloud Engg. (GCP ACE)",
-                    link: "https://www.credly.com/users/vinaygupta-cse/badges#credly",
-                    tags: ["GCP"]
-                },
-                {
-                    name: "Certified Kubernetes Administrator (CKA)",
-                    link: "https://www.credly.com/users/vinaygupta-cse/badges#credly",
-                    tags: ["Kubernetes"]
-                },
-                {
-                    name: "AWS Solutions Architect – Associate (AWS SAA)",
-                    link: "https://www.credly.com/users/vinaygupta-cse/badges#credly",
-                    tags: ["AWS"]
-                },
-                {
-                    name: "Red Hat Certified Engineer (RHCE RHEL 7)",
-                    link: "https://www.credly.com/users/vinaygupta-cse/badges#credly",
-                    tags: ["Linux"]
-                },
-                {
-                    name: "IBM AIX Administrator",
-                    link: "https://www.credly.com/users/vinaygupta-cse/badges#credly",
-                    tags: ["IBM AIX"]
-                },
-                {
-                    name: "IBM Cloud Badges",
-                    link: "https://www.credly.com/users/vinaygupta-cse/badges#credly",
-                    tags: []
-                },
-                {
-                    name: "Google Cloud Skills Boost Profile",
-                    link: "https://www.cloudskillsboost.google/public_profiles/fa01f34b-4532-4ac1-a259-15fdc266a860/",
-                    tags: ["GCP"]
-                }
-            ],
-            // The projects array was missing, leading to the error. I've added a placeholder to prevent the error.
-            projects: []
+                { name: "GCP Associate Cloud Engg. (GCP ACE)", link: "https://www.credly.com/users/vinaygupta-cse/badges#credly", tags: ["GCP"] },
+                { name: "Certified Kubernetes Administrator (CKA)", link: "https://www.credly.com/users/vinaygupta-cse/badges#credly", tags: ["Kubernetes"] },
+                { name: "AWS Solutions Architect – Associate (AWS SAA)", link: "https://www.credly.com/users/vinaygupta-cse/badges#credly", tags: ["AWS"] },
+                { name: "Red Hat Certified Engineer (RHCE RHEL 7)", link: "https://www.credly.com/users/vinaygupta-cse/badges#credly", tags: ["Linux"] },
+                { name: "IBM AIX Administrator", link: "https://www.credly.com/users/vinaygupta-cse/badges#credly", tags: ["IBM AIX"] },
+                { name: "IBM Cloud Badges", link: "https://www.credly.com/users/vinaygupta-cse/badges#credly", tags: [] },
+                { name: "Google Cloud Skills Boost Profile", link: "https://www.cloudskillsboost.google/public_profiles/fa01f34b-4532-4ac1-a259-15fdc266a860/", tags: ["GCP"] }
+            ]
         };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -309,97 +331,77 @@
             const resetBtn = document.getElementById('reset-filter');
             let activeSkill = null;
 
-            function renderSkills() {
-                skillsContainer.innerHTML = '';
-                if (resumeData.skills) {
-                    Object.entries(resumeData.skills).forEach(([category, skills]) => {
-                        skills.forEach(skill => {
-                            const button = document.createElement('button');
-                            button.textContent = skill;
-                            button.dataset.skill = skill;
-                            button.className = 'skill-tag bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full hover:bg-amber-400 hover:text-white';
-                            button.addEventListener('click', () => handleSkillClick(skill));
-                            skillsContainer.appendChild(button);
-                        });
-                    });
+            function typeWriter(element, text, i = 0) {
+                if (i === 0) {
+                    element.innerHTML = '<span class="typewriter-text"></span><span class="cursor"></span>';
                 }
+                const textContainer = element.querySelector('.typewriter-text');
+                if (i < text.length) {
+                    textContainer.textContent += text.charAt(i);
+                    setTimeout(() => typeWriter(element, text, i + 1), 75);
+                } else {
+                    // Make cursor static at the end for a moment before it starts blinking normally
+                    setTimeout(() => {
+                        const cursor = element.querySelector('.cursor');
+                        if(cursor) cursor.style.animation = 'blink 1s step-end infinite';
+                    }, 500);
+                }
+            }
+            
+            function renderSkills() {
+                Object.values(resumeData.skills).flat().forEach(skill => {
+                    const button = document.createElement('button');
+                    button.textContent = skill;
+                    button.dataset.skill = skill;
+                    button.className = 'skill-tag text-xs font-semibold px-3 py-1 rounded-full';
+                    button.addEventListener('click', () => handleSkillClick(skill));
+                    skillsContainer.appendChild(button);
+                });
             }
 
             function renderExperience() {
-                experienceContainer.innerHTML = '';
-                if (resumeData.experience) {
-                    resumeData.experience.forEach(job => {
-                        const div = document.createElement('div');
-                        div.className = 'timeline-item bg-white pl-10 pr-6 py-4 rounded-lg border-l-4 border-slate-200';
-                        div.dataset.tags = JSON.stringify(job.tags);
-                        
-                        div.innerHTML = `
-                            <div class="absolute w-5 h-5 bg-slate-300 rounded-full -left-2.5 mt-1.5 border-4 border-white"></div>
-                            <p class="text-sm font-medium text-amber-600">${job.period}</p>
-                            <div class="flex items-center gap-2 mb-3">
-                                <img src="${job.logo}" alt="${job.company} logo" class="w-8 h-8 rounded-full">
-                                <h3 class="text-lg font-bold text-slate-800">${job.role} at ${job.company}</h3>
-                            </div>
-                            <ul class="list-disc list-inside space-y-1 text-sm text-slate-600">
-                                ${job.points.map(p => `<li>${p}</li>`).join('')}
-                            </ul>
-                        `;
-                        experienceContainer.appendChild(div);
-                    });
-                }
-
-                // IntersectionObserver to trigger timeline item animations
-                const observer = new IntersectionObserver((entries, observer) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('in-view');
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.5 }); // Trigger when 50% of item is visible
-
-                document.querySelectorAll('.timeline-item').forEach(item => {
-                    observer.observe(item);
+                const verticalLine = experienceContainer.querySelector('.w-0\\.5');
+                resumeData.experience.forEach(job => {
+                    const div = document.createElement('div');
+                    div.className = 'timeline-item pl-10 pr-6 py-4 rounded-lg';
+                    div.dataset.tags = JSON.stringify(job.tags);
+                    
+                    div.innerHTML = `
+                        <div class="absolute w-5 h-5 bg-slate-700 rounded-full -left-2.5 mt-1.5 border-4 border-[var(--background)]"></div>
+                        <p class="text-sm font-medium text-green-400">${job.period}</p>
+                        <div class="flex items-center gap-3 mb-3">
+                            <img src="${job.logo}" alt="${job.company} logo" class="w-8 h-8 rounded-full border border-slate-600">
+                            <h3 class="text-lg font-bold text-slate-100">${job.role} at ${job.company}</h3>
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 text-sm text-slate-400">
+                            ${job.points.map(p => `<li>${p}</li>`).join('')}
+                        </ul>
+                    `;
+                    experienceContainer.appendChild(div);
                 });
             }
 
             function renderCerts() {
                 certsContainer.innerHTML = '';
-                if (resumeData.certifications) {
-                    resumeData.certifications.forEach(cert => {
-                        const div = document.createElement('div');
-                        div.className = 'cert-item bg-slate-50 p-3 rounded-lg border-l-4 border-slate-200';
-                        div.dataset.tags = JSON.stringify(cert.tags);
-                        div.innerHTML = `<p class="font-semibold">${cert.name}</p>`;
-                        certsContainer.appendChild(div);
-                    });
-                }
+                resumeData.certifications.forEach(cert => {
+                    const div = document.createElement('div');
+                    div.className = 'cert-item bg-transparent p-3 rounded-lg';
+                    div.dataset.tags = JSON.stringify(cert.tags);
+                    div.innerHTML = `<a href="${cert.link}" target="_blank" rel="noopener noreferrer" class="font-semibold text-slate-300 hover:text-green-400 hover:underline">> ${cert.name}</a>`;
+                    certsContainer.appendChild(div);
+                });
             }
             
-            // The projects section was removed, but the `projects` property was still being referenced by some code.
-            // I'm adding a dummy `renderProjects` function to prevent errors from the `renderProjects` call.
-            function renderProjects() {
-                // This function is now empty as there is no project showcase section.
-            }
-
             function handleSkillClick(skill) {
                 const skillButtons = document.querySelectorAll('.skill-tag');
-                
                 if (activeSkill === skill) {
                     resetFilter();
                     return;
                 }
-
                 activeSkill = skill;
-                
                 skillButtons.forEach(btn => {
-                    if (btn.dataset.skill === skill) {
-                        btn.classList.add('active-skill');
-                    } else {
-                        btn.classList.remove('active-skill');
-                    }
+                    btn.classList.toggle('active-skill', btn.dataset.skill === skill);
                 });
-
                 filterContent(skill);
             }
 
@@ -435,16 +437,8 @@
                         datasets: [{
                             label: 'Years in Role',
                             data: resumeData.careerFocus.data,
-                            backgroundColor: [
-                                'rgba(245, 158, 11, 0.8)',
-                                'rgba(100, 116, 139, 0.8)',
-                                'rgba(148, 163, 184, 0.8)'
-                            ],
-                            borderColor: [
-                                'rgba(245, 158, 11, 1)',
-                                'rgba(100, 116, 139, 1)',
-                                'rgba(148, 163, 184, 1)'
-                            ],
+                            backgroundColor: ['rgba(57, 255, 20, 0.7)', 'rgba(48, 54, 61, 0.8)', 'rgba(70, 78, 88, 0.8)'],
+                            borderColor: ['rgba(57, 255, 20, 1)', 'rgba(100, 116, 139, 1)', 'rgba(148, 163, 184, 1)'],
                             borderWidth: 1,
                             hoverOffset: 8
                         }]
@@ -456,23 +450,13 @@
                             legend: {
                                 position: 'bottom',
                                 labels: {
-                                   font: {
-                                        family: "'Inter', sans-serif"
-                                    }
+                                    color: '#c9d1d9',
+                                    font: { family: "'Fira Code', monospace" }
                                 }
                             },
                             tooltip: {
                                 callbacks: {
-                                    label: function(context) {
-                                        let label = context.label || '';
-                                        if (label) {
-                                            label += ': ';
-                                        }
-                                        if (context.parsed !== null) {
-                                            label += context.parsed + ' years';
-                                        }
-                                        return label;
-                                    }
+                                    label: (context) => `${context.label || ''}: ${context.parsed || 0} years`
                                 }
                             }
                         }
@@ -480,6 +464,9 @@
                 });
             }
 
+            // Initial calls
+            typeWriter(document.getElementById('header-name'), "Vinay Gupta");
+            setTimeout(() => typeWriter(document.getElementById('header-title'), "Site Reliability Engineer"), 1200);
             renderSkills();
             renderExperience();
             renderCerts();
@@ -488,3 +475,4 @@
     </script>
 </body>
 </html>
+
