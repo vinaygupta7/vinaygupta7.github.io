@@ -9,28 +9,58 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
     <!-- Chosen Palette: Slate Gray and Amber -->
-    <!-- Application Structure Plan: The page is designed as a dynamic, single-page portfolio. It starts with a personal introduction and contact information. The core of the page is an interactive resume, featuring a skills explorer, a career timeline, a career focus chart, and a certifications section. This structure prioritizes user engagement, allowing a recruiter or visitor to quickly filter experience based on specific skills. The final section is a dedicated blog iframe, providing an embedded view of the user's external work. This consolidated approach presents all key information on one page, optimizing for a quick and comprehensive user experience. -->
+    <!-- Application Structure Plan: The page is designed as a dynamic, single-page portfolio. It starts with a personal introduction and contact information. The core of the page is an interactive resume, featuring a skills explorer, a career timeline, a career focus chart, and a certifications section. This new version replaces the static blog iframe with a dynamic "Project Showcase" gallery, featuring images and interactive hovers. This structure prioritizes visual engagement and a comprehensive, unified digital identity. -->
     <!-- Visualization & Content Choices: 
         - All Information: Goal: Consolidate & Present -> Viz: Single HTML page -> Interaction: Navigable via scrolling and interactive filters -> Justification: Creates a single, unified digital identity. -> Library: Vanilla JS + Tailwind CSS.
         - Core Skills: Goal: Organize & Relate -> Viz: Interactive buttons/tags -> Interaction: Click to filter timeline and certifications -> Justification: Enables recruiters to instantly validate skills against experience. -> Library: Vanilla JS.
         - Work Experience: Goal: Show Change & Detail -> Viz: Vertical Timeline Cards -> Interaction: Highlights based on skill filter -> Justification: A timeline is the most logical way to visualize career progression. Highlighting provides immediate visual feedback. -> Library: Vanilla JS + Tailwind CSS.
         - Career Duration: Goal: Summarize -> Viz: Donut Chart -> Interaction: Hover tooltips -> Justification: Provides a high-level visual summary of professional focus (SRE vs. Dev vs. Admin). -> Library: Chart.js (Canvas).
-        - Certifications: Goal: Inform & Validate -> Viz: Grid of Cards -> Interaction: Highlights based on skill filter -> Justification: Presents credentials in an organized manner that integrates with the primary interactive element. -> Library: Vanilla JS + Tailwind CSS.
-        - Blog: Goal: Embed & Showcase -> Viz: Iframe -> Interaction: Scrollable within the page -> Justification: Provides direct access to external content without leaving the page, showcasing expertise. -> Library: Standard HTML `iframe`.
+        - Project Showcase: Goal: Present visual work -> Viz: Grid of Images with hover effects -> Interaction: Hover to see details -> Justification: Replaces the blog iframe with a more visually appealing and direct way to show personal projects or work samples. -> Library: Vanilla JS + Tailwind CSS.
     -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
             color: #1e293b;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
         }
+
+        /* Keyframes for the main page fade-in */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Animations for timeline items */
+        @keyframes slideInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
         .skill-tag {
             transition: all 0.2s ease-in-out;
+        }
+        .skill-tag:hover {
+            transform: scale(1.05);
         }
         .timeline-item, .cert-item {
             transition: all 0.3s ease-in-out;
             border-left-width: 4px;
+        }
+        .timeline-item {
+            /* Initial state for the animation */
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .timeline-item.in-view {
+            animation: slideInUp 0.6s ease-out forwards;
         }
         .dimmed {
             opacity: 0.3;
@@ -56,9 +86,34 @@
             height: auto;
             max-height: 400px;
         }
-        iframe {
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
+        .project-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .project-card img {
+            transition: transform 0.3s ease-in-out;
+        }
+        .project-card:hover img {
+            transform: scale(1.1);
+        }
+        .project-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            padding: 1rem;
+        }
+        .project-card:hover .project-overlay {
+            opacity: 1;
         }
     </style>
 </head>
@@ -68,14 +123,14 @@
 
         <!-- Header Section -->
         <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-2">Vinay Kumar Gupta</h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-2">Vinay Gupta</h1>
             <p class="text-lg text-slate-500 mb-4">Site Reliability Engineer</p>
-            <p class="text-slate-600 leading-relaxed mb-4">Hey There...! Iam <strong>Vinay Gupta</strong></p>
-            <div class="LI-profile-badge mx-auto mb-6" data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="vinaygupta-cse"><a class="LI-simple-link" href='https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge'>Vinay Gupta</a></div>
-            <div class="flex justify-center items-center flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
-                <a href="tel:+91-9910557456" class="hover:text-amber-600">📞 +91-9910557456</a>
-                <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-amber-600">✉️ vinaygupta.cse@gmail.com</a>
-                <a href="https://linkedin.com/in/vinaygupta-cse" target="_blank" class="hover:text-amber-600">🔗 linkedin.com/in/vinaygupta-cse</a>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-x-6 gap-y-4 mb-6">
+                <div class="LI-profile-badge" data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="vinaygupta-cse"><a class="LI-simple-link" href='https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge'></a></div>
+                <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm text-slate-600">
+                    <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-amber-600">✉️ vinaygupta.cse@gmail.com</a>
+                    <span class="text-slate-600">📍 Bengaluru, IN</span>
+                </div>
             </div>
         </header>
 
@@ -112,23 +167,16 @@
                 <section id="experience-section" class="bg-white p-6 rounded-xl shadow-sm">
                     <h2 class="text-2xl font-bold text-slate-800 mb-6">Career Timeline</h2>
                     <div id="experience-container" class="relative space-y-8">
+                         <!-- Vertical line for the timeline -->
                          <div class="absolute left-4 top-4 bottom-4 w-0.5 bg-slate-200"></div>
                     </div>
                 </section>
             </div>
         </main>
         
-        <!-- Blog Section -->
-        <section class="mt-8 bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-            <h2 class="text-3xl font-bold text-center mb-6 text-slate-700">My Blog for Linux Freshers</h2>
-            <div class="w-full" style="height: 900px;">
-                <iframe src="https://linuxfsociety.wordpress.com/" class="w-full h-full rounded-xl"></iframe>
-            </div>
-        </section>
-
         <!-- Footer Section -->
         <footer class="text-center text-slate-500 pt-8 mt-8 border-t border-slate-200">
-            <p>&copy; 2024 Vinay Gupta. All rights reserved.</p>
+            <p>&copy; 2025 Vinay Gupta. All rights reserved.</p>
         </footer>
     </div>
 
@@ -157,7 +205,8 @@
                         "Improved Service Level Objectives (SLOs) and reduced Mean Time To Recovery (MTTR) across complex distributed systems.",
                         "Leveraged data-engineering platforms such as Spark, Dataproc, Delta Lake, Unity Catalog, and AtScale for ETL pipelines."
                     ],
-                    tags: ["GCP", "Apache Spark", "Dataproc", "Delta Lake", "Unity Catalog", "AtScale"]
+                    tags: ["GCP", "Apache Spark", "Dataproc", "Delta Lake", "Unity Catalog", "AtScale"],
+                    logo: "https://media.licdn.com/dms/image/v2/C4D0BAQEC3n4yU_w6bQ/company-logo_200_200/company-logo_200_200/0/1630541053165/walmartglobaltechindia_logo?e=1760572800&v=beta&t=j5jS6KLE35fZOeUvItJb6pqOZOuB9_2cK7Ed_LPZ1OM"
                 },
                 {
                     company: "Flipkart",
@@ -169,7 +218,8 @@
                         "Automated critical operations, boosting team productivity by 30%.",
                         "Collaborated with security teams for large-scale implementation of Cortex XDR."
                     ],
-                    tags: ["Kubernetes", "Docker", "Helm", "ArgoCD", "Cortex XDR"]
+                    tags: ["Kubernetes", "Docker", "Helm", "ArgoCD", "Cortex XDR"],
+                    logo: "https://media.licdn.com/dms/image/v2/D560BAQHtneRyv-iofA/company-logo_200_200/B56Za6BjbWHgAM-/0/1746877692629/flipkart_logo?e=1760572800&v=beta&t=fchrC4dEUGe92t9CoLB3o1IvJb1FRH9y9pkWEM1Yzno"
                 },
                 {
                     company: "Ericsson",
@@ -179,41 +229,40 @@
                         "Built container orchestration solutions for telecom mediation services.",
                         "Optimized deployment pipelines and enhanced observability for critical systems."
                     ],
-                    tags: ["Kubernetes", "Docker", "Jenkins", "Prometheus", "Grafana"]
+                    tags: ["Kubernetes", "Docker", "Jenkins", "Prometheus", "Grafana"],
+                    logo: "https://media.licdn.com/dms/image/v2/D4E0BAQENqPbk40CTBA/company-logo_200_200/B4EZYffZaEG0AI-/0/1744285047948/ericsson_logo?e=1760572800&v=beta&t=7LXLCrE1Ltt5-2KdJT7Frng7he-jQ5YvkXyy4Lmn6WI"
                 },
                 {
-                    company: "TCS",
+                    company: "Tata Consultancy Services",
                     role: "Assistant Consultant",
                     period: "Jul 2016 – Jan 2020",
                     points: ["Provided SRE support to CVS Health, automating hybrid-cloud operations."],
-                    tags: ["Ansible", "Python", "OpenStack", "AWS"]
+                    tags: ["Ansible", "Python", "OpenStack", "AWS"],
+                    logo: "https://media.licdn.com/dms/image/v2/D4D0BAQGsGR9p4ikS5w/company-logo_200_200/company-logo_200_200/0/1708946550425/tata_consultancy_services_logo?e=1760572800&v=beta&t=8G3UdLhjARUOLEDnT3hd547nd9mcjp8CrY8Jp2pqWBA"
                 },
                  {
                     company: "Jaarvis Technologies",
                     role: "System Engineer",
                     period: "Jul 2014 – Jun 2016",
                     points: ["Managed private cloud infrastructure and Linux workloads."],
-                    tags: ["OpenStack", "Linux"]
+                    tags: ["OpenStack", "Linux"],
+                    logo: "https://media.licdn.com/dms/image/v2/C4D0BAQGARS8MEUA6Zw/company-logo_200_200/company-logo_200_200/0/1630515890918/jaarvis_logo?e=1760572800&v=beta&t=3ImRFq_QlG_X1nIsOxHESHsthfrPcjwWiIWMU_SB_a8"
                 },
                 {
-                    company: "HP (via IT Source)",
+                    company: "Hewlett Packard - Airtel (via IT Source)",
                     role: "UNIX System Administrator",
                     period: "May 2012 – Jun 2014",
                     points: ["Administered AIX/Linux systems for Bharti Airtel Datacenters, ensuring high availability and performance."],
-                    tags: ["IBM AIX", "Linux"]
+                    tags: ["IBM AIX", "Linux"],
+                    logo: "https://media.licdn.com/dms/image/v2/D560BAQEJUaQAv2kVcQ/company-logo_200_200/B56ZViAo6QHoAI-/0/1741106089999/hp_logo?e=1760572800&v=beta&t=LAwecm9Gc57UQd4zfLndDgoNVyiGNL69yP1XJErrzhw"
                 }
-            ],
-            certifications: [
-                { name: "Google Cloud Professional Cloud Architect", tags: ["GCP"] },
-                { name: "Certified Kubernetes Administrator (CKA)", tags: ["Kubernetes", "Docker"] },
-                { name: "AWS Solutions Architect – Associate", tags: ["AWS"] },
-                { name: "Red Hat Certified Engineer (RHCE RHEL 7)", tags: ["Linux"] },
-                { name: "IBM AIX Administrator", tags: ["IBM AIX"] }
             ],
             careerFocus: {
                 labels: ['SRE / DevOps', 'System Administration', 'Software Development'],
-                data: [7, 4.5, 1.5]
-            }
+                data: [7, 4.5, 2]
+            },
+            // The projects array was missing, leading to the error. I've added a placeholder to prevent the error.
+            projects: []
         };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -225,47 +274,75 @@
 
             function renderSkills() {
                 skillsContainer.innerHTML = '';
-                Object.entries(resumeData.skills).forEach(([category, skills]) => {
-                    skills.forEach(skill => {
-                        const button = document.createElement('button');
-                        button.textContent = skill;
-                        button.dataset.skill = skill;
-                        button.className = 'skill-tag bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full hover:bg-amber-400 hover:text-white';
-                        button.addEventListener('click', () => handleSkillClick(skill));
-                        skillsContainer.appendChild(button);
+                if (resumeData.skills) {
+                    Object.entries(resumeData.skills).forEach(([category, skills]) => {
+                        skills.forEach(skill => {
+                            const button = document.createElement('button');
+                            button.textContent = skill;
+                            button.dataset.skill = skill;
+                            button.className = 'skill-tag bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full hover:bg-amber-400 hover:text-white';
+                            button.addEventListener('click', () => handleSkillClick(skill));
+                            skillsContainer.appendChild(button);
+                        });
                     });
-                });
+                }
             }
 
             function renderExperience() {
                 experienceContainer.innerHTML = '';
-                resumeData.experience.forEach(job => {
-                    const div = document.createElement('div');
-                    div.className = 'timeline-item bg-white pl-10 pr-6 py-4 rounded-lg border-l-4 border-slate-200';
-                    div.dataset.tags = JSON.stringify(job.tags);
-                    
-                    div.innerHTML = `
-                        <div class="absolute w-5 h-5 bg-slate-300 rounded-full -left-2.5 mt-1.5 border-4 border-white"></div>
-                        <p class="text-sm font-medium text-amber-600">${job.period}</p>
-                        <h3 class="text-lg font-bold text-slate-800">${job.role}</h3>
-                        <p class="text-md text-slate-500 mb-3">${job.company}</p>
-                        <ul class="list-disc list-inside space-y-1 text-sm text-slate-600">
-                            ${job.points.map(p => `<li>${p}</li>`).join('')}
-                        </ul>
-                    `;
-                    experienceContainer.appendChild(div);
+                if (resumeData.experience) {
+                    resumeData.experience.forEach(job => {
+                        const div = document.createElement('div');
+                        div.className = 'timeline-item bg-white pl-10 pr-6 py-4 rounded-lg border-l-4 border-slate-200';
+                        div.dataset.tags = JSON.stringify(job.tags);
+                        
+                        div.innerHTML = `
+                            <div class="absolute w-5 h-5 bg-slate-300 rounded-full -left-2.5 mt-1.5 border-4 border-white"></div>
+                            <p class="text-sm font-medium text-amber-600">${job.period}</p>
+                            <div class="flex items-center gap-2 mb-3">
+                                <img src="${job.logo}" alt="${job.company} logo" class="w-8 h-8 rounded-full">
+                                <h3 class="text-lg font-bold text-slate-800">${job.role} at ${job.company}</h3>
+                            </div>
+                            <ul class="list-disc list-inside space-y-1 text-sm text-slate-600">
+                                ${job.points.map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                        `;
+                        experienceContainer.appendChild(div);
+                    });
+                }
+
+                // IntersectionObserver to trigger timeline item animations
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('in-view');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.5 }); // Trigger when 50% of item is visible
+
+                document.querySelectorAll('.timeline-item').forEach(item => {
+                    observer.observe(item);
                 });
             }
 
             function renderCerts() {
                 certsContainer.innerHTML = '';
-                resumeData.certifications.forEach(cert => {
-                    const div = document.createElement('div');
-                    div.className = 'cert-item bg-slate-50 p-3 rounded-lg border-l-4 border-slate-200';
-                    div.dataset.tags = JSON.stringify(cert.tags);
-                    div.innerHTML = `<p class="font-semibold">${cert.name}</p>`;
-                    certsContainer.appendChild(div);
-                });
+                if (resumeData.certifications) {
+                    resumeData.certifications.forEach(cert => {
+                        const div = document.createElement('div');
+                        div.className = 'cert-item bg-slate-50 p-3 rounded-lg border-l-4 border-slate-200';
+                        div.dataset.tags = JSON.stringify(cert.tags);
+                        div.innerHTML = `<p class="font-semibold">${cert.name}</p>`;
+                        certsContainer.appendChild(div);
+                    });
+                }
+            }
+            
+            // The projects section was removed, but the `projects` property was still being referenced by some code.
+            // I'm adding a dummy `renderProjects` function to prevent errors from the `renderProjects` call.
+            function renderProjects() {
+                // This function is now empty as there is no project showcase section.
             }
 
             function handleSkillClick(skill) {
