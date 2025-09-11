@@ -24,36 +24,15 @@
             font-family: 'Fira Code', monospace;
             background-color: var(--background);
             color: var(--foreground);
-            opacity: 0;
-            animation: fadeIn 1s ease-in-out forwards;
             overflow-y: scroll;
         }
 
-        /* Scanline effect for CRT monitor feel */
-        body::after {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 4px, 6px 100%;
-            z-index: -1;
-            pointer-events: none;
-            animation: flicker 0.15s infinite;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        /* Scanline effect for CRT monitor feel - REMOVED for a cleaner look */
         
         @keyframes flicker {
-          0% { opacity: 0.8; }
+          0% { opacity: 0.95; }
           50% { opacity: 1; }
-          100% { opacity: 0.8; }
+          100% { opacity: 0.95; }
         }
 
         .hacker-container {
@@ -61,6 +40,12 @@
             border: 1px solid var(--border);
             box-shadow: 0 0 15px var(--green-dim);
             backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .visible {
+            opacity: 1;
         }
 
         .hacker-card {
@@ -71,6 +56,7 @@
         .hacker-card:hover {
             box-shadow: 0 0 10px var(--green-dim);
             border-color: var(--green-dim);
+            transform: translateY(-5px);
         }
 
         .text-glow {
@@ -78,12 +64,6 @@
             text-shadow: 0 0 5px var(--green);
         }
         
-        .typewriter-text {
-            display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
         .cursor {
             display: inline-block;
             background-color: var(--green);
@@ -139,45 +119,26 @@
             margin-left: auto;
             margin-right: auto;
         }
-        
-        .project-card {
-            position: relative;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-        .project-card img {
-            transition: transform 0.3s ease-in-out;
-        }
-        .project-card:hover img {
-            transform: scale(1.1);
-        }
-        .project-overlay {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(13, 17, 23, 0.9);
-            color: var(--foreground);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            padding: 1rem;
-        }
-        .project-card:hover .project-overlay {
-            opacity: 1;
-        }
     </style>
 </head>
 <body class="p-4 sm:p-8">
+
+    <div id="terminal-boot" class="fixed inset-0 bg-[var(--background)] z-50 p-4 font-mono text-[var(--green)] text-sm md:text-base overflow-y-auto">
+        <div id="terminal-output"></div>
+        <div class="flex items-center">
+            <span id="terminal-prompt" class="hidden">[vinay@portfolio ~]$&nbsp;</span>
+            <span id="terminal-cursor" class="bg-[var(--green)] w-2.5 h-4 inline-block ml-1"></span>
+        </div>
+    </div>
+
 
     <div class="hacker-container container mx-auto max-w-7xl p-6 md:p-10 rounded-xl">
 
         <!-- Header Section -->
         <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-glow mb-2" id="header-name"></h1>
-            <p class="text-lg text-slate-400 mb-4" id="header-title"></p>
+            <div id="live-clock" class="text-xs text-green-400/70 mb-4 text-right"></div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-glow mb-2">Vinay Gupta</h1>
+            <p class="text-lg text-slate-400 mb-4">Site Reliability Engineer</p>
             <div class="flex flex-col sm:flex-row justify-center items-center gap-x-6 gap-y-4 mb-6">
                 <div class="LI-profile-badge" data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="dark" data-vanity="vinaygupta-cse"><a class="LI-simple-link" href='https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge'></a></div>
                 <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm text-slate-400">
@@ -329,25 +290,76 @@
             const experienceContainer = document.getElementById('experience-container');
             const certsContainer = document.getElementById('certs-container');
             const resetBtn = document.getElementById('reset-filter');
+            const mainContainer = document.querySelector('.hacker-container');
             let activeSkill = null;
 
-            function typeWriter(element, text, i = 0) {
-                if (i === 0) {
-                    element.innerHTML = '<span class="typewriter-text"></span><span class="cursor"></span>';
-                }
-                const textContainer = element.querySelector('.typewriter-text');
-                if (i < text.length) {
-                    textContainer.textContent += text.charAt(i);
-                    setTimeout(() => typeWriter(element, text, i + 1), 75);
-                } else {
-                    // Make cursor static at the end for a moment before it starts blinking normally
-                    setTimeout(() => {
-                        const cursor = element.querySelector('.cursor');
-                        if(cursor) cursor.style.animation = 'blink 1s step-end infinite';
-                    }, 500);
+            function updateClock() {
+                const clockElement = document.getElementById('live-clock');
+                if (clockElement) {
+                    const now = new Date();
+                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
+                     // Using en-IN for Indian context as requested.
+                    clockElement.textContent = `${now.toLocaleString('en-IN', options)}`;
                 }
             }
             
+            async function bootSequence() {
+                const terminalBoot = document.getElementById('terminal-boot');
+                const terminalOutput = document.getElementById('terminal-output');
+                const terminalCursor = document.getElementById('terminal-cursor');
+                const terminalPrompt = document.getElementById('terminal-prompt');
+
+                const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+                const typeLine = async (line, speed = 50) => {
+                    const p = document.createElement('p');
+                    p.innerHTML = line.startsWith('[') ? `<span class="text-slate-400">[vinay@portfolio ~]$ </span>` : '';
+                    terminalOutput.appendChild(p);
+                    const text = line.startsWith('[') ? line.substring(line.indexOf(']') + 2) : line;
+                    
+                    for (let i = 0; i < text.length; i++) {
+                        p.innerHTML += text.charAt(i);
+                        await sleep(speed);
+                    }
+                };
+
+                const bootLines = [
+                    "Initializing kernel... [OK]",
+                    "Loading modules... [OK]",
+                    "Starting services:",
+                    "  - NetworkManager... <span class='text-green-400'>[OK]</span>",
+                    "  - SecurityDaemon... <span class='text-green-400'>[OK]</span>",
+                    "  - Renderer... <span class='text-green-400'>[OK]</span>",
+                    "Mounting file systems... [OK]",
+                    "",
+                    `Welcome to Vinay Gupta's Interactive Portfolio`,
+                    `System Time: ${new Date().toLocaleString('en-IN')}`,
+                    "",
+                    "[vinay@portfolio ~]$ ./load_profile.sh",
+                    "Fetching user data...",
+                    "...",
+                    "Rendering profile for: Vinay Gupta // Site Reliability Engineer",
+                    "...",
+                    "Launching UI..."
+                ];
+
+                terminalCursor.style.animation = 'blink 1s step-end infinite';
+
+                for (const line of bootLines) {
+                    await typeLine(line, 20);
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                }
+
+                await sleep(500);
+                terminalBoot.style.transition = 'opacity 1s ease-out';
+                terminalBoot.style.opacity = '0';
+                
+                mainContainer.classList.add('visible');
+
+                setTimeout(() => {
+                    terminalBoot.remove();
+                }, 1000);
+            }
+
             function renderSkills() {
                 Object.values(resumeData.skills).flat().forEach(skill => {
                     const button = document.createElement('button');
@@ -360,7 +372,6 @@
             }
 
             function renderExperience() {
-                const verticalLine = experienceContainer.querySelector('.w-0\\.5');
                 resumeData.experience.forEach(job => {
                     const div = document.createElement('div');
                     div.className = 'timeline-item pl-10 pr-6 py-4 rounded-lg';
@@ -465,8 +476,9 @@
             }
 
             // Initial calls
-            typeWriter(document.getElementById('header-name'), "Vinay Gupta");
-            setTimeout(() => typeWriter(document.getElementById('header-title'), "Site Reliability Engineer"), 1200);
+            updateClock();
+            setInterval(updateClock, 1000);
+            bootSequence();
             renderSkills();
             renderExperience();
             renderCerts();
@@ -475,4 +487,5 @@
     </script>
 </body>
 </html>
+
 
