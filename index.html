@@ -9,7 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+    
+    <!-- REMOVED: LinkedIn's JavaScript badge, which is often blocked by Content Security Policies on static sites. -->
+    <!-- <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script> -->
     
     <!-- Firebase Imports -->
     <script type="module">
@@ -202,10 +204,35 @@
             <h1 class="text-4xl md:text-5xl font-extrabold text-glow mb-2">Vinay Gupta</h1>
             <p class="text-lg text-slate-400 mb-4">Site Reliability Engineer</p>
             <div class="flex flex-col sm:flex-row justify-center items-center gap-x-6 gap-y-4 mb-6">
-                <div class="LI-profile-badge" data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="dark" data-vanity="vinaygupta-cse"><a class="LI-simple-link" href='https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge'></a></div>
+                <!--
+                    REPLACED: LinkedIn's JavaScript-based badge with a static image badge.
+                    This is more reliable for static sites like GitHub Pages.
+                    You can find more badge options on sites like Shields.io.
+                    Make sure to replace the `href` with your actual LinkedIn profile URL.
+                -->
+                <a href="https://www.linkedin.com/in/vinaygupta-cse" target="_blank" rel="noopener noreferrer" class="transition-transform transform hover:scale-105">
+                    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn Badge" class="rounded-lg">
+                </a>
+                
                 <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm text-slate-400">
-                    <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-green-400">> vinaygupta.cse@gmail.com</a>
-                    <span class="text-slate-400">> Bengaluru, IN</span>
+                    <!-- Updated Email with a Gmail icon -->
+                    <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-green-400 flex items-center gap-1">
+                        <!-- Gmail (Mail) SVG Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail mr-1">
+                            <rect width="20" height="16" x="2" y="4" rx="2"/>
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                        </svg>
+                        <span>> vinaygupta.cse@gmail.com</span>
+                    </a>
+                    <!-- Updated Location with a location pin icon -->
+                    <span class="text-slate-400 flex items-center gap-1">
+                        <!-- Location Pin SVG Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin mr-1">
+                            <path d="M12 12a5 5 0 1 0 0-10a5 5 0 0 0 0 10z"/>
+                            <path d="M12 22s-4-6-4-10a4 4 0 0 1 8 0c0 4-4 10-4 10z"/>
+                        </svg>
+                        <span>> Bengaluru, IN</span>
+                    </span>
                 </div>
             </div>
         </header>
