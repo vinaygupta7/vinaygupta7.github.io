@@ -11,6 +11,68 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
     
+    <!-- Firebase Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc, increment, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Firebase configuration and initialization
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        let app, db, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("Firebase initialized successfully.");
+
+            // Authenticate the user
+            (async () => {
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                        console.log("Signed in with custom token.");
+                    } else {
+                        await signInAnonymously(auth);
+                        console.log("Signed in anonymously.");
+                    }
+                    
+                    // Firestore logic to track hits
+                    const hitsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'hits', 'total');
+                    
+                    // Increment the counter on page load
+                    await setDoc(hitsDocRef, { count: increment(1) }, { merge: true });
+                    
+                    // Set up real-time listener for the counter
+                    onSnapshot(hitsDocRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            const count = data.count || 0;
+                            const hitsElement = document.getElementById('total-hits');
+                            if (hitsElement) {
+                                hitsElement.textContent = `Total Hits: ${count}`;
+                            }
+                        } else {
+                            // If the document doesn't exist, create it with a count of 1
+                            setDoc(hitsDocRef, { count: 1 });
+                        }
+                    }, (error) => {
+                        console.error("Error listening to hits counter:", error);
+                    });
+
+                } catch (error) {
+                    console.error("Firebase authentication or Firestore error:", error);
+                }
+            })();
+
+        } catch (error) {
+            console.error("Failed to initialize Firebase:", error);
+        }
+    </script>
+    
     <style>
         :root {
             --background: #0d1117; /* GitHub Dark Background */
@@ -30,9 +92,9 @@
         /* Scanline effect for CRT monitor feel - REMOVED for a cleaner look */
         
         @keyframes flicker {
-          0% { opacity: 0.95; }
-          50% { opacity: 1; }
-          100% { opacity: 0.95; }
+            0% { opacity: 0.95; }
+            50% { opacity: 1; }
+            100% { opacity: 0.95; }
         }
 
         .hacker-container {
@@ -190,6 +252,7 @@
         <!-- Footer Section -->
         <footer class="text-center text-slate-500 pt-8 mt-8 border-t border-slate-700">
             <p>&copy; 2025 Vinay Gupta. init_complete()</p>
+            <p id="total-hits" class="mt-2 text-sm text-green-400/70"></p>
         </footer>
     </div>
 
@@ -253,7 +316,7 @@
                     tags: ["Ansible", "Python", "OpenStack", "AWS"],
                     logo: "https://media.licdn.com/dms/image/v2/D4D0BAQGsGR9p4ikS5w/company-logo_200_200/company-logo_200_200/0/1708946550425/tata_consultancy_services_logo?e=1760572800&v=beta&t=8G3UdLhjARUOLEDnT3hd547nd9mcjp8CrY8Jp2pqWBA"
                 },
-                 {
+                {
                     company: "Jaarvis Technologies",
                     role: "System Engineer",
                     period: "Jul 2014 – Jun 2016",
@@ -298,7 +361,7 @@
                 if (clockElement) {
                     const now = new Date();
                     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
-                     // Using en-IN for Indian context as requested.
+                    // Using en-IN for Indian context as requested.
                     clockElement.textContent = `${now.toLocaleString('en-IN', options)}`;
                 }
             }
@@ -487,5 +550,3 @@
     </script>
 </body>
 </html>
-
-
