@@ -219,43 +219,6 @@
     </div>
 
     <script>
-        // Start of new sound functionality
-        let audioContext;
-        let oscillator;
-        let gainNode;
-
-        function playKeySound() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                // Create a gain node to control the volume.
-                gainNode = audioContext.createGain();
-                gainNode.connect(audioContext.destination);
-                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime); // Set a low volume
-            }
-
-            // Create a new oscillator for each sound.
-            oscillator = audioContext.createOscillator();
-            oscillator.type = 'square';
-            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Set a pleasant frequency.
-            
-            // Connect the oscillator to the gain node.
-            oscillator.connect(gainNode);
-
-            // Start the sound and quickly fade it out.
-            oscillator.start();
-            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.05); // Fade out
-            oscillator.stop(audioContext.currentTime + 0.05); // Stop after a short duration
-        }
-
-        // Add a global keydown listener to play the sound.
-        document.addEventListener('keydown', (event) => {
-            // Play the sound for most keys but not modifiers like Shift, Ctrl, Alt, or meta keys.
-            if (event.key.length === 1 || event.key === 'Enter' || event.key === 'Backspace') {
-                playKeySound();
-            }
-        });
-        // End of new sound functionality
-
         const resumeData = {
             skills: {
                 "Cloud Platforms": ["GCP", "OpenStack", "AWS"],
@@ -264,7 +227,7 @@
                 "Monitoring & Logging": ["Prometheus", "Grafana", "ELK Stack"],
                 "Security": ["Tenable SC", "Cortex XDR", "AppViewX", "Venafi"],
                 "Databases": ["MariaDB", "PostgreSQL"],
-                "Data Engineering": ["Apache Spark", "Dataproc", "Delta Lake", "Apache Airflow", "Unity Catalog", "AtScale"],
+                "Data Engineering": ["Apache Spark", "Dataproc", "Delta Lake", "Unity Catalog", "AtScale", "Apache Airflow"],
                 "Scripting & Programming": ["Bash", "Python"],
                 "Operating Systems": ["Linux", "IBM AIX"]
             },
@@ -355,6 +318,35 @@
             const mainContainer = document.querySelector('.hacker-container');
             let activeSkill = null;
 
+            // Start of new sound functionality - Moved to be attached after boot sequence
+            let audioContext;
+            let gainNode;
+
+            function playKeySound() {
+                try {
+                    if (!audioContext) {
+                        // This will only succeed if called from a user-initiated event.
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        gainNode = audioContext.createGain();
+                        gainNode.connect(audioContext.destination);
+                        gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+                    }
+
+                    const oscillator = audioContext.createOscillator();
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(440 + Math.random() * 20, audioContext.currentTime); // Slight randomization for a more natural sound
+                    
+                    oscillator.connect(gainNode);
+
+                    oscillator.start();
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.05);
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                } catch(e) {
+                    console.error("Audio context could not be created or played:", e);
+                }
+            }
+            // End of new sound functionality
+
             function updateClock() {
                 const clockElement = document.getElementById('live-clock');
                 if (clockElement) {
@@ -369,7 +361,6 @@
                 const terminalBoot = document.getElementById('terminal-boot');
                 const terminalOutput = document.getElementById('terminal-output');
                 const terminalCursor = document.getElementById('terminal-cursor');
-                const terminalPrompt = document.getElementById('terminal-prompt');
 
                 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
                 const typeLine = async (line, speed = 50) => {
@@ -419,6 +410,18 @@
 
                 setTimeout(() => {
                     terminalBoot.remove();
+
+                    // --- FIX FOR AUDIO PLAYBACK ---
+                    // Attach the keydown listener ONLY after the boot sequence is complete.
+                    // This ensures the browser has registered a user interaction with the page,
+                    // which is required for the Web Audio API to function.
+                    document.addEventListener('keydown', (event) => {
+                        if (event.key.length === 1 || event.key === 'Enter' || event.key === 'Backspace') {
+                            playKeySound();
+                        }
+                    });
+                    // --- END FIX ---
+
                 }, 1000);
             }
 
