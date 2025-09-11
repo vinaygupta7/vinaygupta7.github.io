@@ -10,70 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- REMOVED: LinkedIn's JavaScript badge, which is often blocked by Content Security Policies on static sites. -->
-    <!-- <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script> -->
+    <!-- This is the LinkedIn JavaScript badge file required for the badge to work. -->
+    <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
     
-    <!-- Firebase Imports -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, increment, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Firebase configuration and initialization
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        let app, db, auth;
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            console.log("Firebase initialized successfully.");
-
-            // Authenticate the user
-            (async () => {
-                try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                        console.log("Signed in with custom token.");
-                    } else {
-                        await signInAnonymously(auth);
-                        console.log("Signed in anonymously.");
-                    }
-                    
-                    // Firestore logic to track hits
-                    const hitsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'hits', 'total');
-                    
-                    // Increment the counter on page load
-                    await setDoc(hitsDocRef, { count: increment(1) }, { merge: true });
-                    
-                    // Set up real-time listener for the counter
-                    onSnapshot(hitsDocRef, (docSnap) => {
-                        if (docSnap.exists()) {
-                            const data = docSnap.data();
-                            const count = data.count || 0;
-                            const hitsElement = document.getElementById('total-hits');
-                            if (hitsElement) {
-                                hitsElement.textContent = `Total Hits: ${count}`;
-                            }
-                        } else {
-                            // If the document doesn't exist, create it with a count of 1
-                            setDoc(hitsDocRef, { count: 1 });
-                        }
-                    }, (error) => {
-                        console.error("Error listening to hits counter:", error);
-                    });
-
-                } catch (error) {
-                    console.error("Firebase authentication or Firestore error:", error);
-                }
-            })();
-
-        } catch (error) {
-            console.error("Failed to initialize Firebase:", error);
-        }
-    </script>
     
     <style>
         :root {
@@ -199,40 +138,40 @@
     <div class="hacker-container container mx-auto max-w-7xl p-6 md:p-10 rounded-xl">
 
         <!-- Header Section -->
-        <header class="text-center mb-8">
+        <header class="mb-8">
             <div id="live-clock" class="text-xs text-green-400/70 mb-4 text-right"></div>
-            <h1 class="text-4xl md:text-5xl font-extrabold text-glow mb-2">Vinay Gupta</h1>
-            <p class="text-lg text-slate-400 mb-4">Site Reliability Engineer</p>
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-x-6 gap-y-4 mb-6">
-                <!--
-                    REPLACED: LinkedIn's JavaScript-based badge with a static image badge.
-                    This is more reliable for static sites like GitHub Pages.
-                    You can find more badge options on sites like Shields.io.
-                    Make sure to replace the `href` with your actual LinkedIn profile URL.
-                -->
-                <a href="https://www.linkedin.com/in/vinaygupta-cse" target="_blank" rel="noopener noreferrer" class="transition-transform transform hover:scale-105">
-                    <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn Badge" class="rounded-lg">
-                </a>
-                
-                <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-sm text-slate-400">
-                    <!-- Updated Email with a Gmail icon -->
-                    <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-green-400 flex items-center gap-1">
-                        <!-- Gmail (Mail) SVG Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail mr-1">
-                            <rect width="20" height="16" x="2" y="4" rx="2"/>
-                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-                        </svg>
-                        <span>> vinaygupta.cse@gmail.com</span>
-                    </a>
-                    <!-- Updated Location with a location pin icon -->
-                    <span class="text-slate-400 flex items-center gap-1">
-                        <!-- Location Pin SVG Icon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin mr-1">
-                            <path d="M12 12a5 5 0 1 0 0-10a5 5 0 0 0 0 10z"/>
-                            <path d="M12 22s-4-6-4-10a4 4 0 0 1 8 0c0 4-4 10-4 10z"/>
-                        </svg>
-                        <span>> Bengaluru, IN</span>
-                    </span>
+            <!-- This container uses flexbox to put the badge on the left and text on the right -->
+            <div class="flex justify-between items-start">
+                <!-- LinkedIn Badge - positioned on the left -->
+                <div class="badge-base LI-profile-badge" data-locale="en_US" data-size="medium" data-theme="dark" data-type="VERTICAL" data-vanity="vinaygupta-cse" data-version="v1">
+                    <a class="badge-base__link LI-simple-link" href="https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge"></a>
+                </div>
+
+                <!-- Right-aligned header content -->
+                <div class="flex flex-col items-end text-right">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-glow mb-2">Vinay Gupta</h1>
+                    <p class="text-lg text-slate-400 mb-4">Site Reliability Engineer</p>
+                    
+                    <div class="flex flex-wrap justify-end items-center gap-x-6 gap-y-2 text-sm text-slate-400">
+                        <!-- Updated Email with a Gmail icon -->
+                        <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-green-400 flex items-center gap-1">
+                            <!-- Gmail (Mail) SVG Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail mr-1">
+                                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                            </svg>
+                            <span>> vinaygupta.cse@gmail.com</span>
+                        </a>
+                        <!-- Updated Location with a location pin icon -->
+                        <span class="text-slate-400 flex items-center gap-1">
+                            <!-- Location Pin SVG Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin mr-1">
+                                <path d="M12 12a5 5 0 1 0 0-10a5 5 0 0 0 0 10z"/>
+                                <path d="M12 22s-4-6-4-10a4 4 0 0 1 8 0c0 4-4 10-4 10z"/>
+                            </svg>
+                            <span>> Bengaluru, IN</span>
+                        </span>
+                    </div>
                 </div>
             </div>
         </header>
@@ -279,11 +218,48 @@
         <!-- Footer Section -->
         <footer class="text-center text-slate-500 pt-8 mt-8 border-t border-slate-700">
             <p>&copy; 2025 Vinay Gupta. init_complete()</p>
-            <p id="total-hits" class="mt-2 text-sm text-green-400/70"></p>
+            
         </footer>
     </div>
 
     <script>
+        // Start of new sound functionality
+        let audioContext;
+        let oscillator;
+        let gainNode;
+
+        function playKeySound() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Create a gain node to control the volume.
+                gainNode = audioContext.createGain();
+                gainNode.connect(audioContext.destination);
+                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime); // Set a low volume
+            }
+
+            // Create a new oscillator for each sound.
+            oscillator = audioContext.createOscillator();
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Set a pleasant frequency.
+            
+            // Connect the oscillator to the gain node.
+            oscillator.connect(gainNode);
+
+            // Start the sound and quickly fade it out.
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.05); // Fade out
+            oscillator.stop(audioContext.currentTime + 0.05); // Stop after a short duration
+        }
+
+        // Add a global keydown listener to play the sound.
+        document.addEventListener('keydown', (event) => {
+            // Play the sound for most keys but not modifiers like Shift, Ctrl, Alt, or meta keys.
+            if (event.key.length === 1 || event.key === 'Enter' || event.key === 'Backspace') {
+                playKeySound();
+            }
+        });
+        // End of new sound functionality
+
         const resumeData = {
             skills: {
                 "Cloud Platforms": ["GCP", "OpenStack", "AWS"],
@@ -567,7 +543,6 @@
 
             // Initial calls
             updateClock();
-            setInterval(updateClock, 1000);
             bootSequence();
             renderSkills();
             renderExperience();
