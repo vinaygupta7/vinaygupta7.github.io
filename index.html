@@ -1,10 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinay Gupta - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
+    <!-- Chosen Palette: Slate Gray and Amber -->
+    <!-- Application Structure Plan: The page is designed as a dynamic, single-page portfolio. It starts with a personal introduction and contact information. The core of the page is an interactive resume, featuring a skills explorer, a career timeline, a career focus chart, and a certifications section. This structure prioritizes user engagement, allowing a recruiter or visitor to quickly filter experience based on specific skills. The final section is a dedicated blog iframe, providing an embedded view of the user's external work. This consolidated approach presents all key information on one page, optimizing for a quick and comprehensive user experience. -->
+    <!-- Visualization & Content Choices: 
+        - All Information: Goal: Consolidate & Present -> Viz: Single HTML page -> Interaction: Navigable via scrolling and interactive filters -> Justification: Creates a single, unified digital identity. -> Library: Vanilla JS + Tailwind CSS.
+        - Core Skills: Goal: Organize & Relate -> Viz: Interactive buttons/tags -> Interaction: Click to filter timeline and certifications -> Justification: Enables recruiters to instantly validate skills against experience. -> Library: Vanilla JS.
+        - Work Experience: Goal: Show Change & Detail -> Viz: Vertical Timeline Cards -> Interaction: Highlights based on skill filter -> Justification: A timeline is the most logical way to visualize career progression. Highlighting provides immediate visual feedback. -> Library: Vanilla JS + Tailwind CSS.
+        - Career Duration: Goal: Summarize -> Viz: Donut Chart -> Interaction: Hover tooltips -> Justification: Provides a high-level visual summary of professional focus (SRE vs. Dev vs. Admin). -> Library: Chart.js (Canvas).
+        - Certifications: Goal: Inform & Validate -> Viz: Grid of Cards -> Interaction: Highlights based on skill filter -> Justification: Presents credentials in an organized manner that integrates with the primary interactive element. -> Library: Vanilla JS + Tailwind CSS.
+        - Blog: Goal: Embed & Showcase -> Viz: Iframe -> Interaction: Scrollable within the page -> Justification: Provides direct access to external content without leaving the page, showcasing expertise. -> Library: Standard HTML `iframe`.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .skill-tag {
+            transition: all 0.2s ease-in-out;
+        }
+        .timeline-item, .cert-item {
+            transition: all 0.3s ease-in-out;
+            border-left-width: 4px;
+        }
+        .dimmed {
+            opacity: 0.3;
+            transform: scale(0.98);
+        }
+        .highlight {
+            border-left-color: #f59e0b !important;
+            transform: scale(1.02);
+            box-shadow: 0 4px 14px 0 rgba(0,0,0,0.05);
+        }
+        .active-skill {
+            background-color: #f59e0b !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: auto;
+            max-height: 400px;
+        }
+        iframe {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
 
-Hey There...!
-<p> Iam <strong>Vinay Gupta</strong></p> 
-<script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js" async defer></script>
-Contact me @ :<div class="LI-profile-badge"  data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="vinaygupta-cse"><a class="LI-simple-link" href='https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge'>Vinay Gupta</a></div>
-<center> BLOG for Linuxfreshers... </center>
-<body>
-  <iframe src="https://linuxfsociety.wordpress.com/" width="100%" height="900px"></iframe>
+    <div class="container mx-auto max-w-7xl bg-white p-6 md:p-10 rounded-xl shadow-lg border border-slate-200">
+
+        <!-- Header Section -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-2">Vinay Kumar Gupta</h1>
+            <p class="text-lg text-slate-500 mb-4">Site Reliability Engineer</p>
+            <p class="text-slate-600 leading-relaxed mb-4">Hey There...! Iam <strong>Vinay Gupta</strong></p>
+            <div class="LI-profile-badge mx-auto mb-6" data-version="v1" data-size="medium" data-locale="en_US" data-type="horizontal" data-theme="light" data-vanity="vinaygupta-cse"><a class="LI-simple-link" href='https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge'>Vinay Gupta</a></div>
+            <div class="flex justify-center items-center flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
+                <a href="tel:+91-9910557456" class="hover:text-amber-600">📞 +91-9910557456</a>
+                <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-amber-600">✉️ vinaygupta.cse@gmail.com</a>
+                <a href="https://linkedin.com/in/vinaygupta-cse" target="_blank" class="hover:text-amber-600">🔗 linkedin.com/in/vinaygupta-cse</a>
+            </div>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <aside class="lg:col-span-1 space-y-8">
+                <section id="skills-section" class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Core Skills Explorer</h2>
+                    <p class="text-sm text-slate-500 mb-4">Click on a skill to highlight relevant experience and certifications.</p>
+                    <div id="skills-container" class="flex flex-wrap gap-2"></div>
+                     <button id="reset-filter" class="mt-4 w-full bg-slate-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-slate-700 transition-colors duration-200">Reset Filter</button>
+                </section>
+                
+                 <section class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Career Focus</h2>
+                     <p class="text-sm text-slate-500 mb-4">A visual breakdown of time spent across primary role functions, illustrating the evolution towards Site Reliability Engineering.</p>
+                    <div class="chart-container">
+                        <canvas id="careerChart"></canvas>
+                    </div>
+                </section>
+
+                <section id="certs-section" class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 border-b pb-2">Certifications</h2>
+                    <div id="certs-container" class="space-y-4"></div>
+                </section>
+            </aside>
+
+            <div class="lg:col-span-2">
+                <section id="summary-section" class="bg-white p-6 rounded-xl shadow-sm mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4">Professional Summary</h2>
+                    <p class="text-slate-600 leading-relaxed">Site Reliability Engineer with over 13 years of experience in designing, implementing, and managing scalable infrastructure. Proven expertise in Kubernetes, Google Cloud Platform (GCP), DevOps methodologies, and Observability. Skilled in ensuring service reliability, driving cost optimization, maintaining security compliance, and operating high-performance distributed systems.</p>
+                </section>
+
+                <section id="experience-section" class="bg-white p-6 rounded-xl shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-6">Career Timeline</h2>
+                    <div id="experience-container" class="relative space-y-8">
+                         <div class="absolute left-4 top-4 bottom-4 w-0.5 bg-slate-200"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+        
+        <!-- Blog Section -->
+        <section class="mt-8 bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+            <h2 class="text-3xl font-bold text-center mb-6 text-slate-700">My Blog for Linux Freshers</h2>
+            <div class="w-full" style="height: 900px;">
+                <iframe src="https://linuxfsociety.wordpress.com/" class="w-full h-full rounded-xl"></iframe>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <footer class="text-center text-slate-500 pt-8 mt-8 border-t border-slate-200">
+            <p>&copy; 2024 Vinay Gupta. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const resumeData = {
+            skills: {
+                "Cloud Platforms": ["GCP", "OpenStack", "AWS"],
+                "Containerization & Orchestration": ["Kubernetes", "Docker", "Helm", "ArgoCD"],
+                "CI/CD & Automation": ["Jenkins", "Ansible", "Git", "Terraform"],
+                "Monitoring & Logging": ["Prometheus", "Grafana", "ELK Stack"],
+                "Security": ["Tenable SC", "Cortex XDR", "AppViewX", "Venafi"],
+                "Databases": ["MariaDB", "PostgreSQL"],
+                "Data Engineering": ["Apache Spark", "Dataproc", "Delta Lake", "Apache Airflow", "Unity Catalog", "AtScale"],
+                "Scripting & Programming": ["Bash", "Python"],
+                "Operating Systems": ["Linux", "IBM AIX"]
+            },
+            experience: [
+                {
+                    company: "Walmart Global Tech",
+                    role: "Sr. Systems & Infrastructure Engineer",
+                    period: "Aug 2023 – Present",
+                    points: [
+                        "Architected and managed large-scale cloud infrastructure within Google Cloud Platform (GCP).",
+                        "Spearheaded cost optimization initiatives, including Dark Data analysis, resulting in significant cost savings.",
+                        "Standardized Site Reliability Engineering (SRE) practices for data engineering workflows.",
+                        "Improved Service Level Objectives (SLOs) and reduced Mean Time To Recovery (MTTR) across complex distributed systems.",
+                        "Leveraged data-engineering platforms such as Spark, Dataproc, Delta Lake, Unity Catalog, and AtScale for ETL pipelines."
+                    ],
+                    tags: ["GCP", "Apache Spark", "Dataproc", "Delta Lake", "Unity Catalog", "AtScale"]
+                },
+                {
+                    company: "Flipkart",
+                    role: "Site Reliability Engineer",
+                    period: "May 2021 – Jul 2023",
+                    points: [
+                        "Designed and maintained a Kubernetes-based Platform-as-a-Service (PaaS) platform.",
+                        "Led SRE practices to ensure secure and compliant infrastructure operations.",
+                        "Automated critical operations, boosting team productivity by 30%.",
+                        "Collaborated with security teams for large-scale implementation of Cortex XDR."
+                    ],
+                    tags: ["Kubernetes", "Docker", "Helm", "ArgoCD", "Cortex XDR"]
+                },
+                {
+                    company: "Ericsson",
+                    role: "Sr. Software Developer",
+                    period: "Feb 2020 – May 2021",
+                    points: [
+                        "Built container orchestration solutions for telecom mediation services.",
+                        "Optimized deployment pipelines and enhanced observability for critical systems."
+                    ],
+                    tags: ["Kubernetes", "Docker", "Jenkins", "Prometheus", "Grafana"]
+                },
+                {
+                    company: "TCS",
+                    role: "Assistant Consultant",
+                    period: "Jul 2016 – Jan 2020",
+                    points: ["Provided SRE support to CVS Health, automating hybrid-cloud operations."],
+                    tags: ["Ansible", "Python", "OpenStack", "AWS"]
+                },
+                 {
+                    company: "Jaarvis Technologies",
+                    role: "System Engineer",
+                    period: "Jul 2014 – Jun 2016",
+                    points: ["Managed private cloud infrastructure and Linux workloads."],
+                    tags: ["OpenStack", "Linux"]
+                },
+                {
+                    company: "HP (via IT Source)",
+                    role: "UNIX System Administrator",
+                    period: "May 2012 – Jun 2014",
+                    points: ["Administered AIX/Linux systems for Bharti Airtel Datacenters, ensuring high availability and performance."],
+                    tags: ["IBM AIX", "Linux"]
+                }
+            ],
+            certifications: [
+                { name: "Google Cloud Professional Cloud Architect", tags: ["GCP"] },
+                { name: "Certified Kubernetes Administrator (CKA)", tags: ["Kubernetes", "Docker"] },
+                { name: "AWS Solutions Architect – Associate", tags: ["AWS"] },
+                { name: "Red Hat Certified Engineer (RHCE RHEL 7)", tags: ["Linux"] },
+                { name: "IBM AIX Administrator", tags: ["IBM AIX"] }
+            ],
+            careerFocus: {
+                labels: ['SRE / DevOps', 'System Administration', 'Software Development'],
+                data: [7, 4.5, 1.5]
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const skillsContainer = document.getElementById('skills-container');
+            const experienceContainer = document.getElementById('experience-container');
+            const certsContainer = document.getElementById('certs-container');
+            const resetBtn = document.getElementById('reset-filter');
+            let activeSkill = null;
+
+            function renderSkills() {
+                skillsContainer.innerHTML = '';
+                Object.entries(resumeData.skills).forEach(([category, skills]) => {
+                    skills.forEach(skill => {
+                        const button = document.createElement('button');
+                        button.textContent = skill;
+                        button.dataset.skill = skill;
+                        button.className = 'skill-tag bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full hover:bg-amber-400 hover:text-white';
+                        button.addEventListener('click', () => handleSkillClick(skill));
+                        skillsContainer.appendChild(button);
+                    });
+                });
+            }
+
+            function renderExperience() {
+                experienceContainer.innerHTML = '';
+                resumeData.experience.forEach(job => {
+                    const div = document.createElement('div');
+                    div.className = 'timeline-item bg-white pl-10 pr-6 py-4 rounded-lg border-l-4 border-slate-200';
+                    div.dataset.tags = JSON.stringify(job.tags);
+                    
+                    div.innerHTML = `
+                        <div class="absolute w-5 h-5 bg-slate-300 rounded-full -left-2.5 mt-1.5 border-4 border-white"></div>
+                        <p class="text-sm font-medium text-amber-600">${job.period}</p>
+                        <h3 class="text-lg font-bold text-slate-800">${job.role}</h3>
+                        <p class="text-md text-slate-500 mb-3">${job.company}</p>
+                        <ul class="list-disc list-inside space-y-1 text-sm text-slate-600">
+                            ${job.points.map(p => `<li>${p}</li>`).join('')}
+                        </ul>
+                    `;
+                    experienceContainer.appendChild(div);
+                });
+            }
+
+            function renderCerts() {
+                certsContainer.innerHTML = '';
+                resumeData.certifications.forEach(cert => {
+                    const div = document.createElement('div');
+                    div.className = 'cert-item bg-slate-50 p-3 rounded-lg border-l-4 border-slate-200';
+                    div.dataset.tags = JSON.stringify(cert.tags);
+                    div.innerHTML = `<p class="font-semibold">${cert.name}</p>`;
+                    certsContainer.appendChild(div);
+                });
+            }
+
+            function handleSkillClick(skill) {
+                const skillButtons = document.querySelectorAll('.skill-tag');
+                
+                if (activeSkill === skill) {
+                    resetFilter();
+                    return;
+                }
+
+                activeSkill = skill;
+                
+                skillButtons.forEach(btn => {
+                    if (btn.dataset.skill === skill) {
+                        btn.classList.add('active-skill');
+                    } else {
+                        btn.classList.remove('active-skill');
+                    }
+                });
+
+                filterContent(skill);
+            }
+
+            function filterContent(skill) {
+                document.querySelectorAll('.timeline-item, .cert-item').forEach(item => {
+                    const tags = JSON.parse(item.dataset.tags || '[]');
+                    if (tags.includes(skill)) {
+                        item.classList.remove('dimmed');
+                        item.classList.add('highlight');
+                    } else {
+                        item.classList.remove('highlight');
+                        item.classList.add('dimmed');
+                    }
+                });
+            }
+
+            function resetFilter() {
+                activeSkill = null;
+                document.querySelectorAll('.skill-tag').forEach(btn => btn.classList.remove('active-skill'));
+                document.querySelectorAll('.timeline-item, .cert-item').forEach(item => {
+                    item.classList.remove('dimmed', 'highlight');
+                });
+            }
+            
+            resetBtn.addEventListener('click', resetFilter);
+
+            function renderChart() {
+                const ctx = document.getElementById('careerChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: resumeData.careerFocus.labels,
+                        datasets: [{
+                            label: 'Years in Role',
+                            data: resumeData.careerFocus.data,
+                            backgroundColor: [
+                                'rgba(245, 158, 11, 0.8)',
+                                'rgba(100, 116, 139, 0.8)',
+                                'rgba(148, 163, 184, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgba(245, 158, 11, 1)',
+                                'rgba(100, 116, 139, 1)',
+                                'rgba(148, 163, 184, 1)'
+                            ],
+                            borderWidth: 1,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                   font: {
+                                        family: "'Inter', sans-serif"
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + ' years';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderSkills();
+            renderExperience();
+            renderCerts();
+            renderChart();
+        });
+    </script>
 </body>
-
+</html>
