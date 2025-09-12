@@ -318,34 +318,69 @@
             const mainContainer = document.querySelector('.hacker-container');
             let activeSkill = null;
 
-            // Start of new sound functionality - Moved to be attached after boot sequence
+            // Enhanced keyboard sound functionality
             let audioContext;
             let gainNode;
+            let soundEnabled = true;
 
-            function playKeySound() {
+            function initAudioContext() {
                 try {
-                    if (!audioContext) {
-                        // This will only succeed if called from a user-initiated event.
+                    if (!audioContext && (window.AudioContext || window.webkitAudioContext)) {
                         audioContext = new (window.AudioContext || window.webkitAudioContext)();
                         gainNode = audioContext.createGain();
                         gainNode.connect(audioContext.destination);
-                        gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+                        gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
                     }
-
-                    const oscillator = audioContext.createOscillator();
-                    oscillator.type = 'square';
-                    oscillator.frequency.setValueAtTime(440 + Math.random() * 20, audioContext.currentTime); // Slight randomization for a more natural sound
-                    
-                    oscillator.connect(gainNode);
-
-                    oscillator.start();
-                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.05);
-                    oscillator.stop(audioContext.currentTime + 0.05);
                 } catch(e) {
-                    console.error("Audio context could not be created or played:", e);
+                    console.error("Audio context could not be created:", e);
+                    soundEnabled = false;
                 }
             }
-            // End of new sound functionality
+
+            function playKeySound(frequency = null) {
+                if (!soundEnabled) return;
+                
+                try {
+                    if (!audioContext) {
+                        initAudioContext();
+                    }
+                    
+                    if (audioContext && audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+
+                    if (!audioContext || !gainNode) return;
+
+                    const oscillator = audioContext.createOscillator();
+                    const envelope = audioContext.createGain();
+                    
+                    oscillator.type = 'square';
+                    // Different frequencies for different types of sounds
+                    const baseFreq = frequency || (440 + Math.random() * 100);
+                    oscillator.frequency.setValueAtTime(baseFreq, audioContext.currentTime);
+                    
+                    envelope.gain.setValueAtTime(0, audioContext.currentTime);
+                    envelope.gain.linearRampToValueAtTime(0.05, audioContext.currentTime + 0.005);
+                    envelope.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+                    
+                    oscillator.connect(envelope);
+                    envelope.connect(gainNode);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } catch(e) {
+                    console.error("Could not play key sound:", e);
+                }
+            }
+
+            function playBootSound() {
+                playKeySound(350); // Lower frequency for boot sounds
+            }
+
+            function playTypingSound() {
+                playKeySound(440 + Math.random() * 60); // Varied frequency for typing
+            }
+            // End of enhanced sound functionality
 
             function updateClock() {
                 const clockElement = document.getElementById('live-clock');
@@ -371,6 +406,10 @@
                     
                     for (let i = 0; i < text.length; i++) {
                         p.innerHTML += text.charAt(i);
+                        // Play typing sound for each character during boot sequence
+                        if (Math.random() > 0.3) { // Don't play sound for every character to avoid overwhelming
+                            playBootSound();
+                        }
                         await sleep(speed);
                     }
                 };
@@ -410,18 +449,6 @@
 
                 setTimeout(() => {
                     terminalBoot.remove();
-
-                    // --- FIX FOR AUDIO PLAYBACK ---
-                    // Attach the keydown listener ONLY after the boot sequence is complete.
-                    // This ensures the browser has registered a user interaction with the page,
-                    // which is required for the Web Audio API to function.
-                    document.addEventListener('keydown', (event) => {
-                        if (event.key.length === 1 || event.key === 'Enter' || event.key === 'Backspace') {
-                            playKeySound();
-                        }
-                    });
-                    // --- END FIX ---
-
                 }, 1000);
             }
 
@@ -539,6 +566,43 @@
                     }
                 });
             }
+
+            // Initialize audio context on first user interaction
+            const initAudioOnInteraction = () => {
+                initAudioContext();
+                document.removeEventListener('click', initAudioOnInteraction);
+                document.removeEventListener('keydown', initAudioOnInteraction);
+                document.removeEventListener('touchstart', initAudioOnInteraction);
+            };
+
+            // Add event listeners for audio initialization and keyboard sounds
+            document.addEventListener('click', initAudioOnInteraction);
+            document.addEventListener('touchstart', initAudioOnInteraction);
+            
+            document.addEventListener('keydown', (event) => {
+                // Initialize audio context on first keypress if not already done
+                if (!audioContext) {
+                    initAudioContext();
+                }
+                
+                // Play sound for various keys
+                if (event.key.length === 1 || 
+                    event.key === 'Enter' || 
+                    event.key === 'Backspace' || 
+                    event.key === 'Tab' || 
+                    event.key === 'Space') {
+                    playTypingSound();
+                }
+            });
+
+            // Add click sounds to interactive elements
+            document.addEventListener('click', (event) => {
+                const target = event.target;
+                if (target.matches('button, a, .skill-tag, .timeline-item, .cert-item') || 
+                    target.closest('button, a, .skill-tag, .timeline-item, .cert-item')) {
+                    playKeySound(520); // Higher frequency for clicks
+                }
+            });
 
             // Initial calls
             updateClock();
