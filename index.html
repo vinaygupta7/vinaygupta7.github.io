@@ -136,31 +136,27 @@
         <!-- Header Section -->
         <header class="mb-8">
             <div id="live-clock" class="text-xs text-green-400/70 mb-4 text-right"></div>
-            <!-- This container uses flexbox to put the badge on the left and text on the right -->
-            <div class="flex justify-between items-start">
-                <!-- LinkedIn Badge - positioned on the left -->
-                <div class="badge-base LI-profile-badge" data-locale="en_US" data-size="medium" data-theme="dark" data-type="VERTICAL" data-vanity="vinaygupta-cse" data-version="v1">
-                    <a class="badge-base__link LI-simple-link" href="https://in.linkedin.com/in/vinaygupta-cse?trk=profile-badge"></a>
-                </div>
+            <div class="flex justify-between items-start gap-4">
+                <a href="https://in.linkedin.com/in/vinaygupta-cse" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--border)] bg-slate-900 text-slate-200 hover:text-green-400 hover:border-[var(--green)] transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-label="LinkedIn logo">
+                        <path d="M6.94 8.5A1.5 1.5 0 1 1 6.94 5a1.5 1.5 0 0 1 0 3.5ZM5.5 9.75h2.88V18H5.5V9.75Zm4.63 0h2.76v1.13h.04c.38-.72 1.32-1.47 2.72-1.47 2.9 0 3.43 1.9 3.43 4.38V18h-2.88v-16.76c0-1.8-.03-4.11-2.5-4.11-2.5 0-2.89 1.96-2.89 3.97V18h-2.88V9.75Z"/>
+                    </svg>
+                    <span>LinkedIn</span>
+                </a>
 
-                <!-- Right-aligned header content -->
                 <div class="flex flex-col items-end text-right">
                     <h1 class="text-4xl md:text-5xl font-extrabold text-glow mb-2">Vinay Gupta</h1>
                     <p class="text-lg text-slate-400 mb-4">Site Reliability Engineer</p>
                     
                     <div class="flex flex-wrap justify-end items-center gap-x-6 gap-y-2 text-sm text-slate-400">
-                        <!-- Updated Email with a Gmail icon -->
                         <a href="mailto:vinaygupta.cse@gmail.com" class="hover:text-green-400 flex items-center gap-1">
-                            <!-- Gmail (Mail) SVG Icon -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect width="20" height="16" x="2" y="4" rx="2"/>
                                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                             </svg>
                             <span>> vinaygupta.cse@gmail.com</span>
                         </a>
-                        <!-- Updated Location with a location pin icon -->
                         <span class="text-slate-400 flex items-center gap-1">
-                            <!-- Location Pin SVG Icon -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 12a5 5 0 1 0 0-10a5 5 0 0 0 0 10z"/>
                                 <path d="M12 22s-4-6-4-10a4 4 0 0 1 8 0c0 4-4 10-4 10z"/>
@@ -211,10 +207,8 @@
             </div>
         </main>
         
-        <!-- Footer Section -->
         <footer class="text-center text-slate-500 pt-8 mt-8 border-t border-slate-700">
             <p>&copy; 2025 Vinay Gupta. init_complete()</p>
-            
         </footer>
     </div>
 
@@ -319,7 +313,6 @@
             const mainContainer = document.querySelector('.hacker-container');
             let activeSkill = null;
 
-            // Enhanced keyboard sound functionality
             let audioContext;
             let gainNode;
             let soundEnabled = true;
@@ -356,7 +349,6 @@
                     const envelope = audioContext.createGain();
                     
                     oscillator.type = 'square';
-                    // Different frequencies for different types of sounds
                     const baseFreq = frequency || (440 + Math.random() * 100);
                     oscillator.frequency.setValueAtTime(baseFreq, audioContext.currentTime);
                     
@@ -375,20 +367,18 @@
             }
 
             function playBootSound() {
-                playKeySound(350); // Lower frequency for boot sounds
+                playKeySound(350);
             }
 
             function playTypingSound() {
-                playKeySound(440 + Math.random() * 60); // Varied frequency for typing
+                playKeySound(440 + Math.random() * 60);
             }
-            // End of enhanced sound functionality
 
             function updateClock() {
                 const clockElement = document.getElementById('live-clock');
                 if (clockElement) {
                     const now = new Date();
                     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
-                    // Using en-IN for Indian context as requested.
                     clockElement.textContent = `${now.toLocaleString('en-IN', options)}`;
                 }
             }
@@ -415,9 +405,7 @@
                     for (let i = 0; i < text.length; i++) {
                         const char = text.charAt(i);
                         
-                        // Check if we're at the start of an HTML tag
                         if (char === '<') {
-                            // Find the end of the tag
                             const endTagIndex = text.indexOf('>', i);
                             if (endTagIndex !== -1) {
                                 const tag = text.substring(i, endTagIndex + 1);
@@ -596,7 +584,6 @@
                 });
             }
 
-            // Initialize audio context on first user interaction
             const initAudioOnInteraction = () => {
                 initAudioContext();
                 document.removeEventListener('click', initAudioOnInteraction);
@@ -604,17 +591,14 @@
                 document.removeEventListener('touchstart', initAudioOnInteraction);
             };
 
-            // Add event listeners for audio initialization and keyboard sounds
             document.addEventListener('click', initAudioOnInteraction);
             document.addEventListener('touchstart', initAudioOnInteraction);
             
             document.addEventListener('keydown', (event) => {
-                // Initialize audio context on first keypress if not already done
                 if (!audioContext) {
                     initAudioContext();
                 }
                 
-                // Play sound for various keys
                 if (event.key.length === 1 || 
                     event.key === 'Enter' || 
                     event.key === 'Backspace' || 
@@ -624,16 +608,14 @@
                 }
             });
 
-            // Add click sounds to interactive elements
             document.addEventListener('click', (event) => {
                 const target = event.target;
                 if (target.matches('button, a, .skill-tag, .timeline-item, .cert-item') || 
                     target.closest('button, a, .skill-tag, .timeline-item, .cert-item')) {
-                    playKeySound(520); // Higher frequency for clicks
+                    playKeySound(520);
                 }
             });
 
-            // Initial calls
             updateClock();
             bootSequence();
             renderSkills();
@@ -642,8 +624,5 @@
             renderChart();
         });
     </script>
-    
-    <!-- This LinkedIn JavaScript badge file must be at the end of the body to ensure the badge's container is ready to be rendered. -->
-    <script type="text/javascript" src="https://platform.linkedin.com/badges/js/profile.js"></script>
 </body>
 </html>
