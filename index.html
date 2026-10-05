@@ -118,6 +118,15 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        .company-logo {
+            background-color: white;
+            padding: 2px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-8">
@@ -444,10 +453,7 @@
                     `System Time: ${new Date().toLocaleString('en-IN')}`,
                     "",
                     "[vinay@portfolio ~]$ ./load_profile.sh",
-                    "Fetching user data...",
-                    "...",
-                    "Rendering profile for: Vinay Gupta // Site Reliability Engineer",
-                    "...",
+                    "Rendering profile for: Vinay Gupta // Site Reliability Engineer ...",
                     "Launching UI..."
                 ];
 
@@ -490,7 +496,9 @@
                         <div class="absolute w-5 h-5 bg-slate-700 rounded-full -left-2.5 mt-1.5 border-4 border-[var(--background)]"></div>
                         <p class="text-sm font-medium text-green-400">${job.period}</p>
                         <div class="flex items-center gap-3 mb-3">
-                            <img src="${job.logo}" alt="${job.company} logo" class="w-8 h-8 rounded-full border border-slate-600" onerror="this.style.display='none'">
+                            <div class="company-logo w-8 h-8">
+                                <img src="${job.logo}" alt="${job.company} logo" class="w-6 h-6" onerror="this.style.display='none'">
+                            </div>
                             <h3 class="text-lg font-bold text-slate-100">${job.role} at ${job.company}</h3>
                         </div>
                         <ul class="list-disc list-inside space-y-1 text-sm text-slate-400">
